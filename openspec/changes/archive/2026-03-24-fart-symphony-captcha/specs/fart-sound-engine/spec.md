@@ -1,15 +1,19 @@
 ## ADDED Requirements
 
 ### Requirement: Sound synthesis
-The system SHALL synthesize fart sounds using Web Audio API oscillators with configurable pitch, duration, and waveform type.
+The system SHALL synthesize fart sounds using Web Audio API oscillators with configurable pitch, duration, waveform type, and noise blending.
 
 #### Scenario: Single fart sound plays
 - **WHEN** the system triggers a fart sound
-- **THEN** a low-frequency oscillator sound plays with frequency sweep (e.g., 200Hz down to 80Hz) and amplitude envelope (attack-decay)
+- **THEN** a low-frequency sawtooth oscillator sound plays with frequency sweep, amplitude envelope (attack-decay), and white noise blending for organic texture
 
-#### Scenario: Different fart types
+#### Scenario: Six configurable fart types
 - **WHEN** the system generates different fart sounds
-- **THEN** each sound has distinct characteristics — short "squeak" vs long "rumble" vs "machine gun burst" — created by varying frequency range, duration, and envelope shape
+- **THEN** each sound has distinct characteristics drawn from 6 available profiles (squeak, rumble, doubleTap, longTooter, sputter, machineGun), created by varying frequency range, duration, vibrato, noise mix, and envelope shape
+
+#### Scenario: Fart profiles are swappable via config
+- **WHEN** the `ROUND_CONFIG` array is edited
+- **THEN** the farts assigned to each round change without modifying synthesis or scoring code
 
 ### Requirement: Microphone recording
 The system SHALL record user audio input via microphone during a designated capture window.
@@ -31,7 +35,7 @@ The system SHALL analyze recorded audio to extract pitch, duration, and volume c
 
 #### Scenario: Pitch detection
 - **WHEN** recorded audio is analyzed
-- **THEN** the system determines the dominant frequency within ±50 Hz accuracy
+- **THEN** the system determines the dominant frequency within ±50 Hz accuracy using autocorrelation
 
 #### Scenario: Duration measurement
 - **WHEN** recorded audio is analyzed
@@ -49,7 +53,7 @@ The system SHALL score user input against the target fart sound pattern.
 - **THEN** pitch score contributes positively to overall score
 
 #### Scenario: Duration match scoring
-- **WHEN** user sound duration is within ±30% of target duration
+- **WHEN** user sound duration is within ±35% of target duration
 - **THEN** duration score contributes positively to overall score
 
 #### Scenario: Overall score calculation

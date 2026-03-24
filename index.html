@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fart Symphony Conductor — Prove You're Human</title>
+<style>
+/* ===== NEOBRUTALIST THEME ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Impact', 'Arial Black', 'Helvetica Neue', sans-serif;
+  background: #FFDE59;
+  color: #000;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+#app {
+  width: 100%;
+  max-width: 700px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* ===== SCREENS ===== */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ===== INTRO SCREEN ===== */
+#intro-screen {
+  background: #fff;
+  border: 4px solid #000;
+  padding: 40px 30px;
+  box-shadow: 8px 8px 0 #000;
+}
+#intro-screen h1 {
+  font-size: 3em;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  margin-bottom: 10px;
+  color: #000;
+}
+#intro-screen .subtitle {
+  font-size: 1.3em;
+  text-transform: uppercase;
+  background: #FF6B6B;
+  color: #000;
+  padding: 6px 16px;
+  display: inline-block;
+  border: 3px solid #000;
+  margin-bottom: 25px;
+  font-weight: 900;
+}
+#intro-screen .instructions {
+  font-size: 1em;
+  color: #000;
+  margin-bottom: 35px;
+  line-height: 1.5;
+  font-family: 'Courier New', monospace;
+}
+.start-btn {
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  font-size: 1.6em;
+  text-transform: uppercase;
+  padding: 16px 55px;
+  border: 4px solid #000;
+  border-radius: 0;
+  background: #0055FF;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 6px 6px 0 #000;
+  transition: transform 0.1s, box-shadow 0.1s;
+  letter-spacing: 2px;
+}
+.start-btn:hover {
+  transform: translate(3px, 3px);
+  box-shadow: 3px 3px 0 #000;
+}
+.start-btn:active {
+  transform: translate(6px, 6px);
+  box-shadow: 0 0 0 #000;
+}
+.start-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* ===== GAME SCREEN ===== */
+#game-screen {
+  background: #fff;
+  border: 4px solid #000;
+  padding: 30px 25px;
+  box-shadow: 8px 8px 0 #000;
+}
+.round-header {
+  font-size: 1.4em;
+  text-transform: uppercase;
+  background: #000;
+  color: #FFDE59;
+  padding: 8px 20px;
+  display: inline-block;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+  font-weight: 900;
+}
+.phase-text {
+  font-size: 2.2em;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 10px 0;
+  min-height: 50px;
+  letter-spacing: 1px;
+}
+.phase-text.demo { color: #0055FF; }
+.phase-text.recording { color: #FF6B6B; animation: pulse 0.5s infinite; }
+.phase-text.scoring { color: #8B5CF6; }
+.phase-text.result-pass { color: #00AA44; }
+.phase-text.result-fail { color: #FF6B6B; }
+
+/* ===== MASCOT ===== */
+.mascot-container {
+  position: relative;
+  width: 180px;
+  height: 200px;
+  margin: 10px auto;
+}
+.mascot {
+  position: relative;
+  width: 160px;
+  height: 140px;
+  margin: 0 auto;
+}
+.butt-cheek {
+  position: absolute;
+  width: 70px;
+  height: 90px;
+  background: #FFDE59;
+  border: 3px solid #000;
+  border-radius: 0;
+  top: 30px;
+  transition: transform 0.15s;
+}
+.butt-cheek.left { left: 10px; transform: rotate(-5deg); }
+.butt-cheek.right { right: 10px; transform: rotate(5deg); }
+.butt-cheek.vibrate {
+  animation: vibrate 0.08s infinite;
+}
+.mascot-face {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  text-align: center;
+  z-index: 2;
+}
+.mascot-eyes {
+  font-size: 2em;
+  margin-bottom: 2px;
+}
+.mascot-mouth {
+  font-size: 2.5em;
+  line-height: 1;
+}
+.mascot-label {
+  margin-top: 5px;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 1px;
+  background: #000;
+  color: #FFDE59;
+  display: inline-block;
+  padding: 2px 10px;
+}
+
+/* ===== TRIES INDICATOR ===== */
+.tries-indicator {
+  font-size: 1.1em;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #000;
+  margin: 8px 0;
+  letter-spacing: 1px;
+  font-family: 'Courier New', monospace;
+}
+
+/* ===== WAVEFORM CANVASES ===== */
+.waveform-area {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 15px 0;
+}
+.waveform-box {
+  flex: 1;
+  max-width: 320px;
+}
+.waveform-box label {
+  display: block;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  font-weight: 900;
+  color: #000;
+  margin-bottom: 4px;
+  letter-spacing: 2px;
+}
+.waveform-box canvas {
+  width: 100%;
+  height: 80px;
+  background: #fff;
+  border: 3px solid #000;
+}
+
+/* ===== SCORE DISPLAY ===== */
+.score-bar {
+  margin: 15px 0;
+  height: 24px;
+  background: #eee;
+  border: 3px solid #000;
+  overflow: hidden;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.score-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+.score-fill.pass { background: #00AA44; }
+.score-fill.fail { background: #FF6B6B; }
+.score-value {
+  font-size: 1.8em;
+  font-weight: 900;
+  margin: 5px 0;
+  letter-spacing: 1px;
+}
+
+/* ===== ROUND SUMMARY ===== */
+.round-summary { margin: 15px 0; font-size: 1.1em; font-weight: 700; }
+.round-summary .round-result { margin: 5px 0; }
+.round-summary .pass { color: #00AA44; }
+.round-summary .fail { color: #FF6B6B; }
+
+/* ===== FINAL SCREEN ===== */
+#final-screen {
+  background: #fff;
+  border: 4px solid #000;
+  padding: 40px 30px;
+  box-shadow: 8px 8px 0 #000;
+}
+#final-screen h2 {
+  font-size: 2.8em;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  letter-spacing: -1px;
+}
+#final-screen .final-message {
+  font-size: 1.1em;
+  color: #000;
+  margin-bottom: 30px;
+  line-height: 1.5;
+  font-family: 'Courier New', monospace;
+}
+.retry-btn {
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  font-size: 1.3em;
+  text-transform: uppercase;
+  padding: 14px 45px;
+  border: 4px solid #000;
+  border-radius: 0;
+  background: #FFDE59;
+  color: #000;
+  cursor: pointer;
+  box-shadow: 6px 6px 0 #000;
+  transition: transform 0.1s, box-shadow 0.1s;
+  letter-spacing: 2px;
+  font-weight: 900;
+}
+.retry-btn:hover {
+  transform: translate(3px, 3px);
+  box-shadow: 3px 3px 0 #000;
+}
+
+/* ===== RECORDING INDICATOR ===== */
+.recording-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: #FF6B6B;
+  border: 2px solid #000;
+  margin-right: 8px;
+  animation: pulse 0.5s infinite;
+  vertical-align: middle;
+}
+
+/* ===== MIC ERROR ===== */
+.mic-error {
+  background: #FF6B6B;
+  color: #000;
+  border: 3px solid #000;
+  padding: 10px;
+  font-size: 1em;
+  margin: 15px 0;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes vibrate {
+  0% { transform: translate(0, 0) rotate(var(--base-rot)); }
+  25% { transform: translate(-2px, 1px) rotate(var(--base-rot)); }
+  50% { transform: translate(2px, -1px) rotate(var(--base-rot)); }
+  75% { transform: translate(-1px, 2px) rotate(var(--base-rot)); }
+  100% { transform: translate(1px, -2px) rotate(var(--base-rot)); }
+}
+@keyframes pop-in {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pop-in { animation: pop-in 0.3s ease-out; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== INTRO SCREEN ===== -->
+  <div id="intro-screen" class="screen active">
+    <h1>Fart Symphony Conductor</h1>
+    <div class="subtitle">The World's Most Absurd Captcha</div>
+    <div class="instructions">
+      To prove you're human, you must master the ancient art of the fart symphony.<br>
+      Listen to the sounds. Then replicate them with your mouth into your microphone.<br>
+      Two rounds. Three tries each. Pass both or go home.<br><br>
+      <em>Microphone required. Dignity not included.</em>
+    </div>
+    <button class="start-btn" id="start-btn">Prove I'm Human</button>
+    <div id="mic-error" class="mic-error" style="display:none;"></div>
+  </div>
+
+  <!-- ===== GAME SCREEN ===== -->
+  <div id="game-screen" class="screen">
+    <div class="round-header" id="round-header">Round 1 of 2 | Try 1 of 3</div>
+    <div class="tries-indicator" id="tries-indicator"></div>
+    <div class="phase-text" id="phase-text">Watch!</div>
+
+    <!-- Mascot -->
+    <div class="mascot-container">
+      <div class="mascot" id="mascot">
+        <div class="butt-cheek left" id="cheek-left"></div>
+        <div class="butt-cheek right" id="cheek-right"></div>
+        <div class="mascot-face">
+          <div class="mascot-eyes" id="mascot-eyes">👁️ 👁️</div>
+          <div class="mascot-mouth" id="mascot-mouth">😐</div>
+        </div>
+      </div>
+      <div class="mascot-label" id="mascot-label">Sir Cheeks III</div>
+    </div>
+
+    <!-- Waveforms -->
+    <div class="waveform-area">
+      <div class="waveform-box" id="target-box">
+        <label>Target</label>
+        <canvas id="target-canvas" width="300" height="80"></canvas>
+      </div>
+      <div class="waveform-box" id="user-box" style="display:none;">
+        <label>Your Input</label>
+        <canvas id="user-canvas" width="300" height="80"></canvas>
+      </div>
+    </div>
+
+    <!-- Score -->
+    <div id="score-area" style="display:none;">
+      <div class="score-value" id="score-value">0%</div>
+      <div class="score-bar"><div class="score-fill" id="score-fill"></div></div>
+    </div>
+
+    <!-- Round summary -->
+    <div class="round-summary" id="round-summary"></div>
+  </div>
+
+  <!-- ===== FINAL SCREEN ===== -->
+  <div id="final-screen" class="screen">
+    <h2 id="final-title"></h2>
+    <div class="final-message" id="final-message"></div>
+    <div class="round-summary" id="final-summary"></div>
+    <button class="retry-btn" id="retry-btn">Try Again</button>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// FART SYMPHONY CONDUCTOR — The World's Most Absurd Captcha
+// ============================================================
+
+// ===== CONFIG =====
+const PASS_THRESHOLD = 40;
+const RECORDING_DURATION = 5000; // ms
+const VOLUME_THRESHOLD = 0.05;
+const PITCH_TOLERANCE = 50; // Hz
+const DURATION_TOLERANCE = 0.35; // 35%
+const TOTAL_ROUNDS = 2;
+const MAX_TRIES = 3;
+
+// ===== FART SOUND PROFILES =====
+// All profiles are available — edit ROUND_CONFIG above to swap farts per round
+const FART_PROFILES = {
+  squeak: {
+    name: 'The Squeaker',
+    type: 'sawtooth',
+    startFreq: 200,
+    endFreq: 120,
+    duration: 0.2,
+    vibrato: 8,
+    noiseMix: 0.15,
+    gainEnv: [0, 0.8, 0.4, 0],
+    mouth: '😯',
+    eyes: '😳',
+  },
+  rumble: {
+    name: 'The Rumbler',
+    type: 'sawtooth',
+    startFreq: 180,
+    endFreq: 80,
+    duration: 0.7,
+    vibrato: 12,
+    noiseMix: 0.2,
+    gainEnv: [0, 0.7, 0.6, 0.45, 0],
+    mouth: '😮',
+    eyes: '😤',
+  },
+  doubleTap: {
+    name: 'The Double-Tap',
+    type: 'sawtooth',
+    startFreq: 160,
+    endFreq: 100,
+    duration: 0.25,
+    vibrato: 6,
+    noiseMix: 0.15,
+    gainEnv: [0, 0.85, 0.3, 0],
+    mouth: '😏',
+    eyes: '😏',
+  },
+  longTooter: {
+    name: 'The Long Tooter',
+    type: 'sawtooth',
+    startFreq: 150,
+    endFreq: 90,
+    duration: 0.9,
+    vibrato: 10,
+    noiseMix: 0.18,
+    gainEnv: [0, 0.5, 0.7, 0.6, 0.3, 0],
+    mouth: '😮',
+    eyes: '😤',
+  },
+  sputter: {
+    name: 'The Sputter',
+    type: 'sawtooth',
+    startFreq: 180,
+    endFreq: 130,
+    duration: 0.15,
+    vibrato: 5,
+    noiseMix: 0.15,
+    gainEnv: [0, 0.9, 0.3, 0],
+    mouth: '😯',
+    eyes: '😳',
+  },
+  machineGun: {
+    name: 'The Machine Gun',
+    type: 'sawtooth',
+    startFreq: 140,
+    endFreq: 70,
+    duration: 1.0,
+    vibrato: 20,
+    noiseMix: 0.25,
+    gainEnv: [0, 0.8, 0.3, 0.7, 0.3, 0.6, 0.2, 0],
+    mouth: '🤯',
+    eyes: '🤪',
+  },
+};
+
+// ===== ROUND CONFIG — pick which fart profile each round uses =====
+// Available profiles: 'squeak', 'rumble', 'doubleTap', 'longTooter', 'sputter', 'machineGun'
+const ROUND_CONFIG = [
+  ['squeak'],                    // Round 1: one fart
+  ['sputter', 'rumble'],         // Round 2: two farts
+];
+
+// ===== ROUND DEFINITIONS =====
+const MASCOT_EXPR = [
+  { mouth: '😐', eyes: '👁️ 👁️' },
+  { mouth: '😏', eyes: '😏' },
+];
+const MASCOT_LABELS = ['Sir Cheeks III', 'Lord Fartsworth'];
+const ROUNDS = ROUND_CONFIG.map((profiles, i) => ({
+  farts: profiles.map((p, j) => ({ profile: p, delay: j * 0.4 })),
+  mascotExpr: MASCOT_EXPR[i],
+  label: MASCOT_LABELS[i],
+}));
+
+// ===== DOM REFS =====
+const $ = id => document.getElementById(id);
+const introScreen = $('intro-screen');
+const gameScreen = $('game-screen');
+const finalScreen = $('final-screen');
+const startBtn = $('start-btn');
+const retryBtn = $('retry-btn');
+const micErrorEl = $('mic-error');
+const roundHeader = $('round-header');
+const triesIndicator = $('tries-indicator');
+const phaseText = $('phase-text');
+const mascotEyes = $('mascot-eyes');
+const mascotMouth = $('mascot-mouth');
+const mascotLabel = $('mascot-label');
+const cheekLeft = $('cheek-left');
+const cheekRight = $('cheek-right');
+const targetCanvas = $('target-canvas');
+const userCanvas = $('user-canvas');
+const targetBox = $('target-box');
+const userBox = $('user-box');
+const scoreArea = $('score-area');
+const scoreValue = $('score-value');
+const scoreFill = $('score-fill');
+const roundSummary = $('round-summary');
+const finalTitle = $('final-title');
+const finalMessage = $('final-message');
+const finalSummary = $('final-summary');
+
+// ===== AUDIO CONTEXT =====
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+// ===== GAME STATE =====
+let gameState = {
+  currentRound: 0,
+  roundResults: [],
+  micStream: null,
+  analyserNode: null,
+  liveAnimFrame: null,
+};
+
+// ===== SCREEN MANAGEMENT =====
+function showScreen(name) {
+  [introScreen, gameScreen, finalScreen].forEach(s => s.classList.remove('active'));
+  $(name).classList.add('active');
+}
+
+// ===== FART SOUND ENGINE =====
+function generateFartWaveform(profile) {
+  const ctx = getAudioCtx();
+  const sampleRate = ctx.sampleRate;
+  const numSamples = Math.floor(profile.duration * sampleRate);
+  const buffer = ctx.createBuffer(1, numSamples, sampleRate);
+  const data = buffer.getChannelData(0);
+  const noiseMix = profile.noiseMix || 0;
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / sampleRate;
+    const progress = t / profile.duration;
+    // Frequency sweep
+    const freq = profile.startFreq + (profile.endFreq - profile.startFreq) * progress;
+    // Vibrato
+    const vib = profile.vibrato * Math.sin(2 * Math.PI * 5 * t);
+    const instantFreq = freq + vib;
+    // Generate sample based on type
+    let sample;
+    const phase = (instantFreq * t) % 1;
+    if (profile.type === 'sine') {
+      sample = Math.sin(2 * Math.PI * instantFreq * t);
+    } else if (profile.type === 'sawtooth') {
+      sample = 2 * phase - 1;
+    } else if (profile.type === 'square') {
+      sample = phase < 0.5 ? 1 : -1;
+    } else {
+      sample = Math.sin(2 * Math.PI * instantFreq * t);
+    }
+    // Blend in noise for organic texture
+    const noise = Math.random() * 2 - 1;
+    sample = sample * (1 - noiseMix) + noise * noiseMix;
+    // Amplitude envelope
+    const envPoints = profile.gainEnv;
+    const envIdx = progress * (envPoints.length - 1);
+    const envLo = Math.floor(envIdx);
+    const envHi = Math.min(envLo + 1, envPoints.length - 1);
+    const envFrac = envIdx - envLo;
+    const env = envPoints[envLo] + (envPoints[envHi] - envPoints[envLo]) * envFrac;
+    data[i] = sample * env * 0.5;
+  }
+  return buffer;
+}
+
+function playBuffer(buffer) {
+  const ctx = getAudioCtx();
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(ctx.destination);
+  source.start();
+  return new Promise(resolve => {
+    source.onended = resolve;
+  });
+}
+
+function playFartSequence(fartDefs) {
+  const buffers = fartDefs.map(fd => ({
+    buffer: generateFartWaveform(FART_PROFILES[fd.profile]),
+    delay: fd.delay,
+  }));
+  const totalDuration = Math.max(...fartDefs.map(fd => fd.delay + FART_PROFILES[fd.profile].duration));
+  const ctx = getAudioCtx();
+  const sampleRate = ctx.sampleRate;
+  const totalSamples = Math.ceil(totalDuration * sampleRate);
+  const combined = ctx.createBuffer(1, totalSamples, sampleRate);
+  const combinedData = combined.getChannelData(0);
+  for (const { buffer, delay } of buffers) {
+    const src = buffer.getChannelData(0);
+    const offset = Math.floor(delay * sampleRate);
+    for (let i = 0; i < src.length && (offset + i) < totalSamples; i++) {
+      combinedData[offset + i] += src[i];
+    }
+  }
+  return { promise: playBuffer(combined), buffer: combined };
+}
+
+// ===== WAVEFORM DRAWING =====
+function drawWaveform(canvas, buffer, color = '#000') {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  if (!buffer) return;
+  const data = buffer.getChannelData ? buffer.getChannelData(0) : buffer;
+  const step = Math.ceil(data.length / w);
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  for (let i = 0; i < w; i++) {
+    let min = 1, max = -1;
+    for (let j = 0; j < step; j++) {
+      const val = data[i * step + j] || 0;
+      if (val < min) min = val;
+      if (val > max) max = val;
+    }
+    const yMin = (1 + min) * h / 2;
+    const yMax = (1 + max) * h / 2;
+    ctx.moveTo(i, yMin);
+    ctx.lineTo(i, yMax);
+  }
+  ctx.stroke();
+}
+
+function drawLiveWaveform(analyser, canvas) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  const bufLen = analyser.fftSize;
+  const dataArr = new Float32Array(bufLen);
+  analyser.getFloatTimeDomainData(dataArr);
+  ctx.clearRect(0, 0, w, h);
+  ctx.beginPath();
+  ctx.strokeStyle = '#ff6b6b';
+  ctx.lineWidth = 2;
+  const step = Math.ceil(bufLen / w);
+  for (let i = 0; i < w; i++) {
+    const val = dataArr[i * step] || 0;
+    const y = (1 + val) * h / 2;
+    if (i === 0) ctx.moveTo(i, y);
+    else ctx.lineTo(i, y);
+  }
+  ctx.stroke();
+}
+
+// ===== MICROPHONE RECORDING =====
+async function requestMic() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    return stream;
+  } catch (e) {
+    return null;
+  }
+}
+
+function startRecording(stream, duration) {
+  return new Promise(resolve => {
+    const ctx = getAudioCtx();
+    const source = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 2048;
+    source.connect(analyser);
+    // Don't connect to destination (no feedback)
+    gameState.analyserNode = analyser;
+    // Also record to buffer using ScriptProcessor
+    const processor = ctx.createScriptProcessor(4096, 1, 1);
+    const recordedChunks = [];
+    processor.onaudioprocess = e => {
+      recordedChunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+    };
+    source.connect(processor);
+    processor.connect(ctx.destination); // needed for script processor in some browsers
+    // Live waveform
+    const liveLoop = () => {
+      drawLiveWaveform(analyser, userCanvas);
+      gameState.liveAnimFrame = requestAnimationFrame(liveLoop);
+    };
+    liveLoop();
+    setTimeout(() => {
+      cancelAnimationFrame(gameState.liveAnimFrame);
+      processor.disconnect();
+      source.disconnect();
+      // Merge chunks
+      const totalLen = recordedChunks.reduce((s, c) => s + c.length, 0);
+      const merged = new Float32Array(totalLen);
+      let offset = 0;
+      for (const chunk of recordedChunks) {
+        merged.set(chunk, offset);
+        offset += chunk.length;
+      }
+      resolve(merged);
+    }, duration);
+  });
+}
+
+// ===== AUDIO ANALYSIS =====
+function analyzeAudio(audioData, sampleRate) {
+  // Find segments above volume threshold
+  const windowSize = 1024;
+  const segments = [];
+  let inSound = false;
+  let segStart = 0;
+  for (let i = 0; i < audioData.length; i += windowSize) {
+    let sum = 0;
+    for (let j = i; j < Math.min(i + windowSize, audioData.length); j++) {
+      sum += audioData[j] * audioData[j];
+    }
+    const rms = Math.sqrt(sum / windowSize);
+    if (rms > VOLUME_THRESHOLD && !inSound) {
+      inSound = true;
+      segStart = i;
+    } else if (rms <= VOLUME_THRESHOLD && inSound) {
+      inSound = false;
+      segments.push({ start: segStart, end: i });
+    }
+  }
+  if (inSound) segments.push({ start: segStart, end: audioData.length });
+  if (segments.length === 0) return { segments: [], pitches: [], durations: [] };
+
+  // Pitch detection per segment (autocorrelation)
+  const pitches = [];
+  const durations = [];
+  for (const seg of segments) {
+    const segData = audioData.slice(seg.start, seg.end);
+    durations.push((seg.end - seg.start) / sampleRate);
+    // Simple autocorrelation pitch detection
+    const pitch = detectPitch(segData, sampleRate);
+    pitches.push(pitch);
+  }
+  return { segments, pitches, durations };
+}
+
+function detectPitch(buffer, sampleRate) {
+  if (buffer.length < 2) return 0;
+  // Autocorrelation
+  let bestOffset = -1;
+  let bestCorr = 0;
+  const SIZE = Math.min(buffer.length, 4096);
+  let rms = 0;
+  for (let i = 0; i < SIZE; i++) rms += buffer[i] * buffer[i];
+  rms = Math.sqrt(rms / SIZE);
+  if (rms < VOLUME_THRESHOLD) return 0;
+
+  let lastCorr = 1;
+  for (let offset = 1; offset < SIZE; offset++) {
+    let corr = 0;
+    for (let i = 0; i < SIZE - offset; i++) {
+      corr += buffer[i] * buffer[i + offset];
+    }
+    corr = corr / (SIZE - offset);
+    if (corr > 0.9 && corr <= lastCorr) {
+      // past peak
+      break;
+    }
+    if (corr > bestCorr) {
+      bestCorr = corr;
+      bestOffset = offset;
+    }
+    lastCorr = corr;
+  }
+  if (bestOffset === -1) return 0;
+  return sampleRate / bestOffset;
+}
+
+// ===== SCORING =====
+function getTargetPitchesDurations(fartDefs) {
+  const ctx = getAudioCtx();
+  const sr = ctx.sampleRate;
+  const pitches = [];
+  const durations = [];
+  for (const fd of fartDefs) {
+    const p = FART_PROFILES[fd.profile];
+    // Average frequency as target pitch
+    pitches.push((p.startFreq + p.endFreq) / 2);
+    durations.push(p.duration);
+  }
+  return { pitches, durations };
+}
+
+function scoreResult(userAnalysis, targetPitches, targetDurations) {
+  const userSegCount = userAnalysis.segments.length;
+  const targetCount = targetPitches.length;
+  // Sound count score (did they make roughly the right number of sounds?)
+  const countDiff = Math.abs(userSegCount - targetCount);
+  const countScore = Math.max(0, 100 - countDiff * 40);
+
+  if (userSegCount === 0 || targetCount === 0) {
+    return { total: 0, pitchScore: 0, durationScore: 0, countScore };
+  }
+
+  // For each target, find best matching user sound
+  let pitchTotal = 0;
+  let durationTotal = 0;
+  const matched = new Set();
+  for (let t = 0; t < targetCount; t++) {
+    let bestMatch = -1;
+    let bestDist = Infinity;
+    for (let u = 0; u < userSegCount; u++) {
+      if (matched.has(u)) continue;
+      const dist = Math.abs(userAnalysis.pitches[u] - targetPitches[t]);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestMatch = u;
+      }
+    }
+    if (bestMatch >= 0) {
+      matched.add(bestMatch);
+      // Pitch score
+      const pitchDiff = Math.abs(userAnalysis.pitches[bestMatch] - targetPitches[t]);
+      const pitchPct = Math.max(0, 100 - (pitchDiff / PITCH_TOLERANCE) * 100);
+      pitchTotal += pitchPct;
+      // Duration score
+      const durDiff = Math.abs(userAnalysis.durations[bestMatch] - targetDurations[t]);
+      const durRatio = durDiff / targetDurations[t];
+      const durPct = Math.max(0, 100 - (durRatio / DURATION_TOLERANCE) * 100);
+      durationTotal += durPct;
+    }
+  }
+  const pitchScore = pitchTotal / targetCount;
+  const durationScore = durationTotal / targetCount;
+  const total = Math.round(countScore * 0.3 + pitchScore * 0.4 + durationScore * 0.3);
+  return { total, pitchScore: Math.round(pitchScore), durationScore: Math.round(durationScore), countScore: Math.round(countScore) };
+}
+
+// ===== MASCOT ANIMATION =====
+function setMascotExpression(eyes, mouth) {
+  mascotEyes.textContent = eyes;
+  mascotMouth.textContent = mouth;
+}
+
+function setMascotLabel(text) {
+  mascotLabel.textContent = text;
+}
+
+function startVibration() {
+  cheekLeft.style.setProperty('--base-rot', '-8deg');
+  cheekRight.style.setProperty('--base-rot', '8deg');
+  cheekLeft.classList.add('vibrate');
+  cheekRight.classList.add('vibrate');
+}
+
+function stopVibration() {
+  cheekLeft.classList.remove('vibrate');
+  cheekRight.classList.remove('vibrate');
+}
+
+function animateMascotForFarts(fartDefs) {
+  return new Promise(resolve => {
+    const totalDur = Math.max(...fartDefs.map(fd => fd.delay + FART_PROFILES[fd.profile].duration));
+    // Animate each fart
+    fartDefs.forEach(fd => {
+      const p = FART_PROFILES[fd.profile];
+      setTimeout(() => {
+        setMascotExpression(p.eyes, p.mouth);
+        startVibration();
+      }, fd.delay * 1000);
+      setTimeout(() => {
+        stopVibration();
+      }, (fd.delay + p.duration) * 1000);
+    });
+    setTimeout(resolve, totalDur * 1000 + 200);
+  });
+}
+
+// ===== UI HELPERS =====
+function setPhaseText(text, cls) {
+  phaseText.textContent = text;
+  phaseText.className = 'phase-text ' + (cls || '');
+}
+
+function showScore(score) {
+  scoreArea.style.display = 'block';
+  scoreValue.textContent = score + '%';
+  scoreFill.style.width = score + '%';
+  scoreFill.className = 'score-fill ' + (score >= PASS_THRESHOLD ? 'pass' : 'fail');
+}
+
+function hideScore() {
+  scoreArea.style.display = 'none';
+  scoreFill.style.width = '0%';
+}
+
+// ===== ROUND LOGIC =====
+async function playRound(roundIdx, triesUsed) {
+  const roundDef = ROUNDS[roundIdx];
+  roundHeader.textContent = `Round ${roundIdx + 1} of ${TOTAL_ROUNDS} | Try ${triesUsed} of ${MAX_TRIES}`;
+  setMascotExpression(roundDef.mascotExpr.eyes, roundDef.mascotExpr.mouth);
+  setMascotLabel(roundDef.label);
+  roundSummary.innerHTML = '';
+  hideScore();
+  userBox.style.display = 'none';
+
+  // Phase: Demo
+  setPhaseText('Watch!', 'demo');
+  const targetData = playFartSequence(roundDef.farts);
+  drawWaveform(targetCanvas, targetData.buffer, '#0055FF');
+  await animateMascotForFarts(roundDef.farts);
+  await targetData.promise;
+  stopVibration();
+
+  // Phase: Recording
+  await sleep(500);
+  setPhaseText('<span class="recording-dot"></span> Your Turn!', 'recording');
+  phaseText.innerHTML = '<span class="recording-dot"></span> Your Turn!';
+  userBox.style.display = 'block';
+  drawWaveform(userCanvas, null);
+
+  const stream = gameState.micStream;
+  if (!stream) {
+    setPhaseText('No microphone!', 'result-fail');
+    return { total: 0 };
+  }
+  setMascotExpression('👀', '👂');
+  const recorded = await startRecording(stream, RECORDING_DURATION);
+  stopVibration();
+
+  // Phase: Scoring
+  setPhaseText('Scoring...', 'scoring');
+  setMascotExpression('🤔', '😬');
+  await sleep(800);
+
+  // Analyze & score
+  const ctx = getAudioCtx();
+  const analysis = analyzeAudio(recorded, ctx.sampleRate);
+  const target = getTargetPitchesDurations(roundDef.farts);
+  const result = scoreResult(analysis, target.pitches, target.durations);
+
+  showScore(result.total);
+
+  // Show waveform comparison
+  const recordedBuffer = ctx.createBuffer(1, recorded.length, ctx.sampleRate);
+  recordedBuffer.getChannelData(0).set(recorded);
+  drawWaveform(userCanvas, recordedBuffer, '#ff6b6b');
+
+  // Phase: Result
+  await sleep(500);
+  if (result.total >= PASS_THRESHOLD) {
+    setPhaseText(`${result.total}% — PASSED!`, 'result-pass');
+    setMascotExpression('🎉', '🥳');
+  } else {
+    setPhaseText(`${result.total}% — FAILED!`, 'result-fail');
+    setMascotExpression('😬', '💨');
+  }
+
+  return result;
+}
+
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+// ===== GAME FLOW =====
+async function startGame() {
+  showScreen('game-screen');
+  gameState.currentRound = 0;
+  gameState.roundResults = [];
+
+  for (let i = 0; i < TOTAL_ROUNDS; i++) {
+    gameState.currentRound = i;
+    let passed = false;
+    let triesUsed = 0;
+    let bestResult = { total: 0 };
+
+    for (let t = 0; t < MAX_TRIES; t++) {
+      triesUsed = t + 1;
+      roundSummary.innerHTML = `<div style="color:#ffd93d;">Round ${i + 1} — Try ${triesUsed} of ${MAX_TRIES}</div>`;
+      const result = await playRound(i, triesUsed);
+      if (result.total > bestResult.total) bestResult = result;
+      if (result.total >= PASS_THRESHOLD) {
+        passed = true;
+        break;
+      }
+      if (triesUsed < MAX_TRIES) {
+        roundSummary.innerHTML = `<div style="color:#ff6b6b;">Try again! (${MAX_TRIES - triesUsed} left)</div>`;
+        await sleep(1500);
+      }
+    }
+
+    gameState.roundResults.push({ ...bestResult, passed, triesUsed });
+    await sleep(1500);
+
+    if (!passed) break; // failed this round, game over
+  }
+
+  showFinalResult();
+}
+
+function showFinalResult() {
+  showScreen('final-screen');
+  const passed = gameState.roundResults.filter(r => r.passed).length;
+  const passCaptcha = passed === TOTAL_ROUNDS; // must pass both rounds
+
+  if (passCaptcha) {
+    finalTitle.textContent = 'HUMAN DETECTED!';
+    finalTitle.style.color = '#00b894';
+    finalMessage.textContent = 'Congratulations! You have proven your humanity through the sacred art of flatulence. Your ancestors would be proud.';
+  } else {
+    finalTitle.textContent = 'ROBOT DETECTED!';
+    finalTitle.style.color = '#ff6b6b';
+    finalMessage.textContent = 'Nice try, robot. Your farts lack the soul of a true human. Maybe upgrade your audio drivers.';
+  }
+
+  let summaryHTML = '';
+  gameState.roundResults.forEach((r, i) => {
+    const cls = r.passed ? 'pass' : 'fail';
+    const emoji = r.passed ? 'YES' : 'NO';
+    summaryHTML += `<div class="round-result ${cls}">${emoji} Round ${i + 1}: ${r.total}% (${r.triesUsed} tries)</div>`;
+  });
+  finalSummary.innerHTML = summaryHTML;
+
+  // Dispatch custom event
+  document.dispatchEvent(new CustomEvent('captcha-complete', {
+    detail: {
+      passed: passCaptcha,
+      scores: gameState.roundResults.map(r => r.total),
+      roundsPassed: passed,
+      triesUsed: gameState.roundResults.map(r => r.triesUsed),
+    }
+  }));
+}
+
+// ===== EVENT HANDLERS =====
+startBtn.addEventListener('click', async () => {
+  startBtn.disabled = true;
+  startBtn.textContent = 'Requesting mic...';
+  micErrorEl.style.display = 'none';
+
+  const stream = await requestMic();
+  if (!stream) {
+    micErrorEl.textContent = 'Microphone access denied. This captcha requires a mic. Please allow microphone access and try again.';
+    micErrorEl.style.display = 'block';
+    startBtn.disabled = false;
+    startBtn.textContent = 'Prove I\'m Human';
+    return;
+  }
+  gameState.micStream = stream;
+  getAudioCtx(); // initialize audio context on user gesture
+  startBtn.textContent = 'Starting...';
+  await sleep(500);
+  startGame();
+});
+
+retryBtn.addEventListener('click', () => {
+  if (gameState.micStream) {
+    gameState.micStream.getTracks().forEach(t => t.stop());
+  }
+  gameState.micStream = null;
+  showScreen('intro-screen');
+  startBtn.disabled = false;
+  startBtn.textContent = 'Prove I\'m Human';
+});
+</script>
+</body>
+</html>
